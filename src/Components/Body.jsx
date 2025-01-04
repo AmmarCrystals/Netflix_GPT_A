@@ -5,7 +5,6 @@ import LoginPage from './LoginPage';
 const Body = () => {
   return (
     <>
-      <h1>GHello From Body</h1>
       <Header />
       <Browse />
       <LoginPage />
