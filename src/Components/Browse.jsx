@@ -1,7 +1,7 @@
 const Browse = () => {
   return (
     <>
-      {/* <h1>Hello From Browse</h1> */}
+      <h1>Hello From Browse</h1>
     </>
   );
 };
