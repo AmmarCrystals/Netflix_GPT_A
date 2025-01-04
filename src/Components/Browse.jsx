@@ -1,7 +1,9 @@
+import Header from "./Header";
+import LoginPage from "./LoginPage";
 const Browse = () => {
   return (
     <>
-      <h1>Hello From Browse</h1>
+      <Header />;<h1>Hello From Browse</h1>
     </>
   );
 };
