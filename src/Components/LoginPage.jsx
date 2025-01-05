@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Netflix_Background } from "../Utils/Constant";
 import Header from "./Header";
+import { updateProfile } from "firebase/auth";
 import { useRef } from "react";
 import {
   getAuth,
@@ -11,6 +12,7 @@ import checkValidation from "../Utils/formValidation";
 // import { getAuth } from "firebase/auth";
 import { app } from "../Utils/firebase"; // Adjust the path as needed
 import { useNavigate } from "react-router";
+
 const LoginPage = () => {
   const [SignUP, setSignUP] = useState(false);
   const [validatoionError, setValidationError] = useState(null);
@@ -18,6 +20,7 @@ const LoginPage = () => {
   const email = useRef();
   const password = useRef();
   const navigate = useNavigate();
+
   const handleButtonClick = () => {
     const result = checkValidation(
       email.current?.value,
@@ -46,7 +49,6 @@ const LoginPage = () => {
   const auth = getAuth();
 
   const handleSingUp = () => {
-    setSignUP(!SignUP);
     const auth = getAuth();
     createUserWithEmailAndPassword(
       auth,
@@ -65,6 +67,23 @@ const LoginPage = () => {
         console.log(errorMessage);
         // ..
       });
+    updateProfile(auth.currentUser, {
+      displayName: name.current?.value,
+      photoURL: "https://example.com/jane-q-user/profile.jpg",
+    })
+      .then(() => {
+        // Profile updated!
+        console.log(displayName);
+        // ...
+      })
+      .catch((error) => {
+        // An error occurred
+        // ...
+      });
+  };
+
+  const handleFormChange = () => {
+    setSignUP(!SignUP);
   };
 
   return (
@@ -111,16 +130,28 @@ const LoginPage = () => {
             className=" pl-4 w-[18rem] h-10 bg-gray-500 mx-auto mt-4 block rounded-lg"
           />
           <p className="text-sm text-red-600 mt-4 pl-12 ">{validatoionError}</p>
-          <button
-            onClick={handleButtonClick}
-            className="w-[18rem] hover:bg-red-500 h-10 bg-red-600 mx-auto mt-6 block rounded-lg"
-          >
-            {!SignUP ? "Sign In" : "Sign Up"}
-          </button>
+
+          {!SignUP ? (
+            <button
+              onClick={handleButtonClick}
+              className="w-[18rem] hover:bg-red-500 h-10 bg-red-600 mx-auto mt-6 block rounded-lg"
+            >
+              {" "}
+              Sign In
+            </button>
+          ) : (
+            <button
+              onClick={handleSingUp}
+              className="w-[18rem] hover:bg-red-500 h-10 bg-red-600 mx-auto mt-6 block rounded-lg"
+            >
+              {" "}
+              Sign Up
+            </button>
+          )}
 
           <p className="text-white text-md mt-4 pl-11 ">
             <span className="text-xs">New to Netflix? </span>
-            <button onClick={handleSingUp}>
+            <button onClick={handleFormChange}>
               {SignUP ? "Sign In" : "Sign Up"}
             </button>
           </p>
