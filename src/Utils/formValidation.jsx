@@ -1,4 +1,5 @@
-const checkValidation = (email, password) => {
+const checkValidation = (name,email, password) => {
+  const isUsernameValid = /^[a-zA-Z0-9_]{3,16}$/.test(name);
   const isEmailValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(
     email
   );
@@ -11,7 +12,9 @@ const checkValidation = (email, password) => {
       return "Email is not valid";
     }else if (!isPasswordValid) {
       return "Password is not valid";   
-    }else{
+    }else if (!isUsernameValid) {
+      return "name is not valid";   
+    }else {
       return null;
     }
 

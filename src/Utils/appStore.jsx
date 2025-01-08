@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import useReducer from "../Utils/userSlice";
+import userReducer from "../Utils/userSlice"; // Corrected import statement
 
 const appStore = configureStore({
   reducer: {
-    user: useReducer,
+    user: userReducer, // Ensure this matches the export from userSlice
   },
 });
 

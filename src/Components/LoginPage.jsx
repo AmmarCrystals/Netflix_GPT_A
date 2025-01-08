@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Netflix_Background } from "../Utils/Constant";
 import Header from "./Header";
-import { updateProfile } from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRef } from "react";
 import {
   getAuth,
@@ -9,11 +9,14 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import checkValidation from "../Utils/formValidation";
-// import { getAuth } from "firebase/auth";
 import { app } from "../Utils/firebase"; // Adjust the path as needed
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux"; // Added useDispatch and useSelector
+import { addUser, removeUser } from "../Utils/userSlice"; // Import addUser and removeUser actions
 
 const LoginPage = () => {
+  const dispatch = useDispatch();
+
   const [SignUP, setSignUP] = useState(false);
   const [validatoionError, setValidationError] = useState(null);
   const name = useRef();
@@ -23,6 +26,7 @@ const LoginPage = () => {
 
   const handleButtonClick = () => {
     const result = checkValidation(
+      name.current?.value,
       email.current?.value,
       password.current?.value
     );
@@ -35,6 +39,7 @@ const LoginPage = () => {
       .then((userCredential) => {
         // Signed in
         const user = userCredential.user;
+        dispatch(addUser(user)); // Dispatch addUser action
         navigate("/browse");
 
         // ...
@@ -46,6 +51,7 @@ const LoginPage = () => {
         console.log(errorMessage);
       });
   };
+
   const auth = getAuth();
 
   const handleSingUp = () => {
@@ -56,9 +62,9 @@ const LoginPage = () => {
       password.current?.value
     )
       .then((userCredential) => {
-        // Signed up
+        const user = userCredential.user;
+        dispatch(addUser(user)); // Dispatch addUser action
         navigate("/browse");
-        // ...
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -67,20 +73,33 @@ const LoginPage = () => {
         console.log(errorMessage);
         // ..
       });
+
     updateProfile(auth.currentUser, {
-      displayName: name.current?.value,
-      photoURL: "https://example.com/jane-q-user/profile.jpg",
+      displayName: email.current?.value,
     })
       .then(() => {
-        // Profile updated!
-        console.log(displayName);
-        // ...
+        const { uid, email, displayName } = auth.currentUser;
+        dispatch(addUser({ uid: uid, email: email, displayName: displayName })); // ...
       })
       .catch((error) => {
         // An error occurred
-        // ...
+        // ...clg
+        console.log(error);
       });
   };
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      console.log(user);
+      if (user) {
+        const { uid, email, displayName } = auth.currentUser;
+        dispatch(addUser({ uid: uid, email: email, displayName: displayName })); // ...
+        console.log(displayName);
+      } else {
+        dispatch(removeUser());
+      }
+    });
+  }, []);
 
   const handleFormChange = () => {
     setSignUP(!SignUP);
