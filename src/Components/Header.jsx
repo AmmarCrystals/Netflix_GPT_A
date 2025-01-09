@@ -1,28 +1,27 @@
 import { Netflix_Logo } from "../Utils/Constant";
-import { getAuth, signOut } from "firebase/auth";
+import {  signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux"; // Added useDispatch
 import { useNavigate } from "react-router";
 import { removeUser } from "../Utils/userSlice"; // Import removeUser action
+import { onAuthStateChanged } from "firebase/auth";
 
 const Header = () => {
   const [isUserAvailable, setIsUserAvailable] = useState("");
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch(); // Initialize useDispatch
-
-  const handleSignOut = () => {
-    const auth = getAuth();
-    signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        dispatch(removeUser()); // Dispatch removeUser action
-        navigate("/");
-      })
-      .catch((error) => {
-        // An error happened.
-      });
-  };
+  const auth = getAuth();
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      const uid = user.uid;
+      // ...
+    } else {
+      // User is signed out
+      // ...
+    }
+  });
 
   return (
     <>

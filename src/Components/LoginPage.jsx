@@ -1,10 +1,10 @@
+import { auth } from "../Utils/firebase"; // Import auth from firebase
 import { useEffect, useState } from "react";
 import { Netflix_Background } from "../Utils/Constant";
 import Header from "./Header";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { useRef } from "react";
 import {
-  getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
@@ -15,8 +15,6 @@ import { useDispatch, useSelector } from "react-redux"; // Added useDispatch and
 import { addUser, removeUser } from "../Utils/userSlice"; // Import addUser and removeUser actions
 
 const LoginPage = () => {
-  const dispatch = useDispatch();
-
   const [SignUP, setSignUP] = useState(false);
   const [validatoionError, setValidationError] = useState(null);
   const name = useRef();
@@ -24,86 +22,66 @@ const LoginPage = () => {
   const password = useRef();
   const navigate = useNavigate();
 
-  const handleButtonClick = () => {
-    const result = checkValidation(
-      name.current?.value,
-      email.current?.value,
-      password.current?.value
-    );
-    setValidationError(result);
-    signInWithEmailAndPassword(
-      auth,
-      email.current?.value,
-      password.current?.value
-    )
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        dispatch(addUser(user)); // Dispatch addUser action
-        navigate("/browse");
+  const result = checkValidation(
+    name.current?.value,
+    email.current?.value,
+    password.current?.value
+  );
 
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        console.log(errorCode);
-        const errorMessage = error.message;
-        console.log(errorMessage);
-      });
-  };
-
-  const auth = getAuth();
-
-  const handleSingUp = () => {
-    const auth = getAuth();
-    createUserWithEmailAndPassword(
-      auth,
-      email.current?.value,
-      password.current?.value
-    )
-      .then((userCredential) => {
-        const user = userCredential.user;
-        dispatch(addUser(user)); // Dispatch addUser action
-        navigate("/browse");
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        console.log(errorCode);
-        const errorMessage = error.message;
-        console.log(errorMessage);
-        // ..
-      });
-
-    updateProfile(auth.currentUser, {
-      displayName: email.current?.value,
-    })
-      .then(() => {
-        const { uid, email, displayName } = auth.currentUser;
-        dispatch(addUser({ uid: uid, email: email, displayName: displayName })); // ...
-      })
-      .catch((error) => {
-        // An error occurred
-        // ...clg
-        console.log(error);
-      });
-  };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      console.log(user);
-      if (user) {
-        const { uid, email, displayName } = auth.currentUser;
-        dispatch(addUser({ uid: uid, email: email, displayName: displayName })); // ...
-        console.log(displayName);
-      } else {
-        dispatch(removeUser());
-      }
-    });
-  }, []);
+  // Handle form change
 
   const handleFormChange = () => {
     setSignUP(!SignUP);
   };
+
+  // SignUP function
+  const handleSingUp = () => {
+    createUserWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        // Signed up
+        const user = userCredential.user;
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  };
+
+  // Sign In function
+
+  const handleSingIn = () => {
+    signInWithEmailAndPassword(
+      auth,
+      email.current.value,
+      password.current.value
+    )
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+  };
+  // sign out function
+
+  //   import { getAuth, signOut } from "firebase/auth";
+
+  // const auth = getAuth();
+  // signOut(auth).then(() => {
+  //   // Sign-out successful.
+  // }).catch((error) => {
+  //   // An error happened.
+  // });
 
   return (
     <>
@@ -152,10 +130,9 @@ const LoginPage = () => {
 
           {!SignUP ? (
             <button
-              onClick={handleButtonClick}
+              onClick={handleSingIn}
               className="w-[18rem] hover:bg-red-500 h-10 bg-red-600 mx-auto mt-6 block rounded-lg"
             >
-              {" "}
               Sign In
             </button>
           ) : (
@@ -179,5 +156,4 @@ const LoginPage = () => {
     </>
   );
 };
-
 export default LoginPage;
